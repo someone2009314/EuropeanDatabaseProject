@@ -6,27 +6,28 @@ Soccer is the world’s most popular sport, played by billions and celebrated gl
 After data preprocessing and model training, features that affect shooting opportunities are positioning during build up, positioning during chance creation, passing during chance creation and defensive pressure. 
 
 
-Introduction 
+# Introduction 
 In soccer, there are many types of factors but for this paper, I am focusing on just technical and tactical factors. Technical factors involve ball manipulation, including dribbling, shooting, passing, and tackling [2]. Technical factors are largely carried out by the player’s technical skills and their ability to execute skilled dribbling or accurate long passes. On the other hand, tactical factors are the decisions made on the field in regard to the ball position, opposing team, and teammates positioning [2]. Tactical factors can be determined by the coach and the players because both can be tactically aware of the game, and can make smart decisions based on what is happening in the game. Choosing the right tactics and players can be challenging due to soccer being such an unpredictable sport. So in order for a team to succeed, teams must adopt well-defined tactics and carefully selected rosters to navigate the unpredictability of the sport.
 The dataset evaluates teams across multiple performance-related features, including their shooting opportunity, so I will be solving a supervised problem. Since the dataset includes both numerical and categorical features, either classification or regression models could be applied. However, classification models were selected as they yielded higher performance. The output value would be the shooting class, whether it is high, normal, or low, the model would have to precisely predict the correct classes given the input values. 
 
-Background 
+# Background 
 There have been a few studies studying and evaluating shooting opportunities. One study by Loutfi and Gómez-Jordan used two-dimensional models to highlight shooting opportunities [3]. In order to determine where the position of each player was, they used passing, fouls, goals, kicks, and substitutions. Instead of researching team attributes, they studied the shooting opportunities with more focus on players and their attributes. They concluded that the positioning of the players throughout the field influences shooting opportunities the most. For example, areas where the distance from the goal is far, there were more shooting opportunities created, and areas where the distance from the goal was close, less shooting chances were created. This can be explained by the number of defenders when the distance from the goal is different. A farther distance will have less defenders because the chance of goal-scoring will be much lower than a closer distance. A limitation to their study however is the dimensionality of the 2d-model. Since soccer takes place in a three dimensional place, a 3d-model would have been more suitable.
 
-Dataset
+# Dataset
 The dataset I will be using is from the European Soccer Database from the popular Data Science Website Kaggle.com. This database was originally in .sqlite form, and required the extraction of  the Team_Attributes table, which then was converted in a comma separated value (CSV) file. The Team_Attributes table was created using sofifa.com, which is a website with data and statistics based on the popular video game series FIFA. The timeframe in which the data was recorded were between the seasons 2008 through 2016, and there are 1458 teams represented, with 25 technical and tactical features. Most of the data had no null values, except for the buildUpPlayDribbling column, which had 66% missing values, so dropping the column was necessary because it would otherwise end up being a misleading feature. Other than the buildUpPlayDribbling class, the date column was removed because dates did not have significant influence on the prediction of shooting opportunities. 
-Figure 1: Missing Values of buildUpPlayDribbling
+
 
 The dependent variable was the chanceCreationShootingClass column because this column is the closest representation of shooting opportunities in the dataset. This column was imbalanced as out of the 1458 samples, 84% was the ‘Normal’ class, 13.5% was the ‘Lots’ class, and 2.5% belonged to the ‘Little’ class. So to increase model metrics, synthesizing the classes ‘Lots’ and ‘Little’ was required to make the data more even. The method I used to synthesize was to iterate through the dataframe and if the row’s class was either ‘Lots’ or ‘Little’, I appended an exact copy of the row. 
-Figure 1: Class Distribution Before and After Synthesizing
 
-	My independent variables were all of the other columns excluding id, team_fifa_api_id, and chanceCreationShooting. The id and team_fifa_api_id feature was excluded because these features represent the identification code of a specific team, and the model might memorize the team id and all of its features, instead of determining the pattern between these columns, which can lead to overfitting. The column chanceCreationShooting was dropped because the output column chanceCreationShootingClass, is a discretized version of chanceCreationShooting. 
-	After the data preprocessing was finished, the data was split into training data and testing data using the train_test_split function from the library scikit-learn, with test_size being twenty percent of the data. The test_size of twenty percent was chosen because upwards of thirty percent would not leave enough training data to train the model well, and a test_size less than twenty percent would not represent the whole dataset [4].
 
-Methodology
+My independent variables were all of the other columns excluding id, team_fifa_api_id, and chanceCreationShooting. The id and team_fifa_api_id feature was excluded because these features represent the identification code of a specific team, and the model might memorize the team id and all of its features, instead of determining the pattern between these columns, which can lead to overfitting. The column chanceCreationShooting was dropped because the output column chanceCreationShootingClass, is a discretized version of chanceCreationShooting. 
+After the data preprocessing was finished, the data was split into training data and testing data using the train_test_split function from the library scikit-learn, with test_size being twenty percent of the data. The test_size of twenty percent was chosen because upwards of thirty percent would not leave enough training data to train the model well, and a test_size less than twenty percent would not represent the whole dataset [4].
+
+# Methodology
 For this paper, I used four models: Logistic Regression, Random Forest Classifier, XGBClassifer, and a Voting Classifier. 
 Logistic Regression
 The first model, Logistic Regression, is a popular classification model, used for binary and multi-class classification [5]. Logistic Regression models predict the probability of whether the input values belong to a certain class. The model first computes the untransformed output (logit) from the linear equation, then an activation function converts the logit into a probability value. Depending on the type of classification, the activation function will be different. Binary classification uses the sigmoid function which “squishes” the logits into a probability between 0 and 1. Additionally, in binary classification, Logistic Regression predicts the probability value of the positive class, and the value of the negative class is simply obtained from the difference between 1 and the positive class probability value. The higher probability value is then what the model outputs. In multi-classification, the softmax function transforms logits into positive values. Then the sum of all the positive values is calculated and the quotient of the sum and each positive value is the probability value for each class. The highest value of the classes is the output from the model.
+
 S(x)= 11+e-x
 S(Xi)=exij=1n exj 
 x = Vector of input values
@@ -34,49 +35,46 @@ e = Base of Natural Logarithm
 xi = The ith element in vector x
 n = Length of vector x
 
-Random Forest Classifier
+# Random Forest Classifier
 The Random Forest Classifier is also a classification model that takes multiple decision trees, and creates a “forest” of them. The aggregate predictions from individual decision trees to determine the final class [6]. Due to the ensemble learning, Random Forest models are accurate and robust to noisy data [7]. 
 
-XGBClassifier
+# XGBClassifier
 The XGBClassifier is a type of gradient boosting model. The XGB in XGBClassifier stands for Extreme Gradient Boosting which is an enhanced version of Gradient Boosting [8]. Gradient Boosting is an ensemble learning method that combines predictions from a group of different decision trees, which creates a stronger model. XGBClassifier models are very useful in cases where datasets are imbalanced because XGBClassifiers consider feature importance, and give priority to the features that benefit the underrepresented classes. There are also additional hyperparameters such as scale_pos_weight that can add more weights for specific classes. 
 A Voting Classifier is a type of model that uses multiple pre-trained models to train itself. There are two types of voting classifiers: hard and soft voting. Hard voting is when the different models predict a class, and the most predicted class will be the final prediction [9]. Hard voting is best used for simple tasks with balanced data, because hard voting has trouble noticing minority classes. Alternatively, soft voting is when the average probability of a predicted class is taken and the highest probability will be chosen to be the final prediction [9]. Soft voting can be used for more complex tasks with imbalance data as soft voting takes into account the mean of the probabilities for each class [10].
 After deciding which models to use, I trained each model using the training data. After the first training round, adjusting the hyperparameters was required because the metrics f1_score, precision, recall, area under the curve (AUC) were not adequate. So using RandomSearchCV and GridSearch, I looked for the best combination of hyperparameters of each model excluding Logistic Regression and Voting Classifier due to simplicity.
 
-Results and Discussion
+# Results and Discussion
 Four metrics were used to evaluate the models: precision, recall,  f1_score, and area under the curve (AUC). All four metrics are metrics for classification models from the modules in the scikit-learn library. Additionally, the average parameter was set to be balanced, so that the scores can get adjusted to the imbalanced number of classes. 
 Precision
 The first metric precision is the accuracy of positive predictions. 
 Precision = True PositiveTrue Positive + False Positive
 
-Recall
+# Recall
 Next, recall focuses on the coverage of actual positives. 
 Recall = True PositiveTrue Positive + False Negative 
 
-F1_score
+# F1_score
 F1_score is the harmonic mean between precision and recall. 
 F1 = 2 * True Positive2*True Positive+False Positive + False Negative or F1 = 2  Precision  RecallPrecision + Recall
 
-AUC(Area Under the Curve)
+# AUC(Area Under the Curve)
 The Area Under the Curve, or AUC, is another metric to evaluate a classification model. The area of AUC is the area of a Receiving Operating Characteristic (ROC) curve. The ROC curve represents the model’s performance based on all thresholds [11].  The ROC curve is graphed with the False Positive rate on the x-axis and the True Positive rate on the y-axis. The area of this curve leads to the AUC. The AUC evaluates the model on all thresholds of the output [11]. 
 As stated, accuracy was not a metric that was used for this study because of the imbalanced data. Even with the synthesized data of the underrepresented data, the classes were still imbalanced. With imbalanced classes, using accuracy as a metric might lead to a very low precision or recall. For example, if a column had 90 positive classes with 10 negative classes, and the model predicts positive every time, the accuracy would still be 90%, but the model never predicted the negative class, which indicates bias towards the positive class. 
-Figure 2: Model Metrics
-
-Figure 3: Confusion Matrices
-
 
 Since XGBClassifiers are well-fitted for imbalance classes, the XGBClassifier model had the most promising results. On the other hand, Logistic Regression is not well-suited for imbalanced classes because Logistic Regression models tend to be biased towards the majority class [12]. 
 	There are limitations to this study that needs to be pointed out. First, even though methods such as adjusting class weights and data synthesization were used, the imbalance of classes caused models to underachieve. If the dataset had a complete balance of the classes, or if more data were to be added, this limitation could be alleviated. Another limitation is the computer resources. In order to effectively run GridSearch, larger grids are required. However, large grids exceeded available RAM and resources. A solution to this limitation could be to reduce the size of the dataset, but this method could lead to a decline in model metrics. So I was only able to use GridSearch for one hyperparameter, which was max_depth. This impacts the model’s ability to fully grasp the relationships between each feature. 
 To find the most important factors that contribute to the accurate predictions of chanceCreationShootingClass, a method called Recursive Feature Elimination (RFE) was utilized. RFE is a feature selection method that recursively removes features from least important to the most important feature. It creates a ranking system of the most important features. When the parameter n_features_to_select was selected to five, there were four features that at least two of the models selected as an important feature. These features were buildUpPlayPositioningClass, chanceCreationPassing, chanceCreationPositioning, and defensePressure. Even though different models with different mechanisms were used, these four features were equally as important for the models. This implies that the four features are important to the dataset and understanding the correlation between the features and the chanceCreationShootingClass.   
 
-Conclusions
+# Conclusions
 This study explored the prediction of shooting opportunities based on technical and tactical factors.
 In this study, only the team’s factors were studied due to data availability. There was no clear way to link the player datasets with the team datasets Individual players also have a major part to play when taking more shooting opportunities because players have complete control over the ball. Specifically, if a player is skilled at dribbling or shooting, they might take or create more opportunities to shoot than a player with less skill. In the future, if the player’s skill set can be analyzed with the teams, I can uncover how an individual player’s skill set affects shooting opportunities and its important features.
 Using this study, professional soccer coaches, staff members, and players can now develop more optimal training strategies, focusing on either the offensive or defensive approach. For example, one of the important features that contributed to more shooting opportunities was defensive pressure. So if players can highly press the opponent’s players, it might create shooting opportunities that can get converted into a goal. There are certain training drills that are set to focus on a specific skill. In particular, a drill called “2v2 Battle”, tests a defenders ability to pressure the attacker into a mistake or mistimed pass [13]. As professional players now play up to three games a week, they have less time to train and recover [14]. So to prevent overworking and causing injury to the players, professional coaches should figure out how to effectively train players that prioritize shooting, so that scoring goals will become easier during actual matches.
 
 
-Acknowledgments
+# Acknowledgments
 I would like to thank my mentor Omar Ramos Escoto for his encouragement and advice, which helped me finish this paper.
-References
+
+#References
 [1] Veroutsos, E., 2023, “The Most Popular Sports in the World,” WorldAtlas. [Online]. Available: https://www.worldatlas.com/articles/what-are-the-most-popular-sports-in-the-world.html.
 [2] Desmond, R., 2022, “Why the Technical, Tactical, Physical and Psychological Sides of Football Are Deeply Intertwined,” The MastermindSite [Online]. Available: https://themastermindsite.com/2022/07/02/why-the-technical-tactical-physical-and-psychological-sides-of-football-are-deeply-intertwined/.
 [3] Loutfi, I., Gómez-Jordana, L. I., Ric, A., Milho, J., and Passos, P., 2023, “Highlighting Shooting Opportunities in Football,” Sensors, 23(9), p. 4244.
